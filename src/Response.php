@@ -2,9 +2,7 @@
 
 namespace ZanPHP\HttpClient;
 
-use ZanPHP\Contracts\Network\Response as ResponseContract;
-
-class Response implements ResponseContract
+class Response
 {
     private $body;
     private $headers;
