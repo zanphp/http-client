@@ -229,7 +229,7 @@ class HttpClient implements Async
             $this->client = new \swoole_http_client($ip, $port, $this->ssl);
         }
 
-        $this->client->on("close", [$this, "onClose"]);
+        // $this->client->on("close", [$this, "onClose"]);
 
         $this->buildHeader();
 
