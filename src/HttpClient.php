@@ -39,6 +39,7 @@ class HttpClient implements Async
 
     private $uri;
     private $method;
+    private $setting = [];
 
     private $params;
     private $header = [];
@@ -59,19 +60,19 @@ class HttpClient implements Async
 
     private $useHttpProxy = false;
 
-    public function __construct($host, $port = 80, $ssl = false)
+    public function __construct($host='', $port = 80, $ssl = false)
     {
         $this->host = $host;
         $this->port = $port;
         $this->ssl = $ssl;
     }
 
-    public static function newInstance($host, $port = 80, $ssl = false)
+    public static function newInstance($host='', $port = 80, $ssl = false)
     {
         return new static($host, $port, $ssl);
     }
 
-    public static function newInstanceUsingProxy($host, $port = 80, $ssl = false)
+    public static function newInstanceUsingProxy($host='', $port = 80, $ssl = false)
     {
         $instance = new static($host, $port, $ssl);
         $instance->useHttpProxy = true;
@@ -90,11 +91,31 @@ class HttpClient implements Async
         yield $this->build();
     }
 
+    public function getByURL($url = '', $params = [], $timeout = 3000)
+    {
+        $this->setMethod(self::GET);
+        $this->setTimeout($timeout);
+        $this->parseUrl($url);
+        $this->setParams($params);
+
+        yield $this->build();
+    }
+
     public function post($uri = '', $params = [], $timeout = 3000)
     {
         $this->setMethod(self::POST);
         $this->setTimeout($timeout);
         $this->setUri($uri);
+        $this->setParams($params);
+
+        yield $this->build();
+    }
+
+    public function postByURL($url = '', $params = [], $timeout = 3000)
+    {
+        $this->setMethod(self::POST);
+        $this->setTimeout($timeout);
+        $this->parseUrl($url);
         $this->setParams($params);
 
         yield $this->build();
@@ -114,6 +135,19 @@ class HttpClient implements Async
         yield $this->build();
     }
 
+    public function postJsonByURL($url = '', $params = [], $timeout = 3000)
+    {
+        $this->setMethod(self::POST);
+        $this->setTimeout($timeout);
+        $this->parseUrl($url);
+        $this->setParams(json_encode($params));
+        $this->setHeader([
+            'Content-Type' => 'application/json'
+        ]);
+
+        yield $this->build();
+    }
+
     public function execute(callable $callback, $task)
     {
         /** @var Task $task */
@@ -124,6 +158,18 @@ class HttpClient implements Async
     public function setMethod($method)
     {
         $this->method = $method;
+        return $this;
+    }
+
+    public function setHost($host)
+    {
+        $this->host = $host;
+        return $this;
+    }
+
+    public function setPort($port)
+    {
+        $this->port = $port;
         return $this;
     }
 
@@ -165,6 +211,13 @@ class HttpClient implements Async
         return $this;
     }
 
+
+    public function set($setting = [])
+    {
+        $this->setting = array_merge($this->setting, $setting);
+    }
+
+
     public function build()
     {
         if ($this->method === 'GET') {
@@ -202,6 +255,9 @@ class HttpClient implements Async
                 throw new \InvalidArgumentException("Missing http proxy config, see: http://zanphpdoc.zanphp.io/libs/network/http.html");
             }
         } else {
+            if(empty($this->host)){
+                throw new \InvalidArgumentException("Host can't be empty");
+            }
             $host = $this->host;
             $port = $this->port;
         }
@@ -228,7 +284,10 @@ class HttpClient implements Async
         } else {
             $this->client = new \swoole_http_client($ip, $port, $this->ssl);
         }
-
+        
+        if(!empty($this->setting)){
+            $this->client->set($this->setting);
+        }
         // $this->client->on("close", [$this, "onClose"]);
 
         $this->buildHeader();
@@ -410,5 +469,38 @@ class HttpClient implements Async
         ];
 
         return [$message, $metaData];
+    }
+
+    public function parseUrl($url)
+    {
+        $urlInfo = parse_url($url);
+        if (empty($urlInfo['host'])) {
+            throw new InvalidArgumentException("URL is not complete, {$url} is given");
+        }
+
+        $this->setHost($urlInfo['host']);
+
+        if (empty($urlInfo['scheme'])) {
+            $this->ssl = false;
+        } else {
+            $this->ssl = ($urlInfo['scheme'] == 'http') ? false : true;
+        }
+        if (empty($urlInfo['port'])) {
+            $port = $this->ssl ? 443 : 80;
+        } else {
+            $port = $urlInfo['port'];
+        }
+        $this->setPort($port);
+
+        if (empty($urlInfo['path'])) {
+            $uri = "/";
+        } else {
+            $uri = $urlInfo['path'];
+        }
+        if (!empty($urlInfo['query'])) {
+            $uri .= "?{$urlInfo['query']}";
+        }
+        $this->setUri($uri);
+        return $this;
     }
 }
