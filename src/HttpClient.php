@@ -303,6 +303,27 @@ class HttpClient implements Async
         }
     }
 
+    private function addMockServerHeader() {
+        if ($this->useHttpProxy) {
+            $value = $this->serviceChainValue;
+            if (is_array($value) && isset($value["zan_test"]) && $value["zan_test"] === true) {
+                $this->header["Content-type"] = "application/x-www-form-urlencoded";
+                $scheme = $this->ssl ? "https://" : "http://";
+                $url = "$scheme{$this->host}:{$this->port}{$this->uri}";
+                if ($this->method === 'GET' || $this->method === 'DELETE') {
+                    if (!empty($this->mockParams)) {
+                        $url = $url . '?' . http_build_query($this->mockParams);
+                    }
+                }
+                $this->header["doraemon-real-url"] = $url;
+
+                /** @var Application $application */
+                $application = make(Application::class);
+                $this->header['app'] = $application->getName();
+            }
+        }
+    }
+
     private function buildHeader()
     {
         if ($this->port !== 80) {
@@ -330,30 +351,8 @@ class HttpClient implements Async
             }
         }
 
-        if ($this->useHttpProxy) {
-            $value = $this->serviceChainValue;
-            if (is_array($value) && isset($value["zan_test"]) && $value["zan_test"] === true) {
-                $this->header["Content-type"] = "application/x-www-form-urlencoded";
-                $scheme = $this->ssl ? "https://" : "http://";
-                $url = "$scheme{$this->host}:{$this->port}{$this->uri}";
-                if ($this->method === 'GET' || $this->method === 'DELETE') {
-                    if (!empty($this->mockParams)) {
-                        $url = $url . '?' . http_build_query($this->mockParams);
-                    }
-                }
-                $this->header["doraemon-real-url"] = $url;
-
-                /** @var Application $application */
-                $application = make(Application::class);
-                $this->header['app'] = $application->getName();
-            }
-        }
-
-        if (is_array($this->serviceChainValue)) {
-            $this->header = Arr::merge($this->header, [
-                "X-Service-Chain" => json_encode($this->serviceChainValue),
-            ]);
-        }
+        //压测流量增加首部
+        $this->addMockServerHeader();
 
         $this->client->setHeaders($this->header);
     }
