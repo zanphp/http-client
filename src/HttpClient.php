@@ -411,4 +411,12 @@ class HttpClient implements Async
 
         return [$message, $metaData];
     }
+
+    /**
+     * @return array
+     */
+    public function getHeader()
+    {
+        return $this->header;
+    }
 }
