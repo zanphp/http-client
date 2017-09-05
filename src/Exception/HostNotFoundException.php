@@ -2,7 +2,6 @@
 
 namespace ZanPHP\HttpClient\Exception;
 
-
 use ZanPHP\Exception\SystemException;
 
 class HostNotFoundException extends SystemException

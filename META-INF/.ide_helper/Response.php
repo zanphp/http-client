@@ -4,42 +4,30 @@ namespace Zan\Framework\Network\Common;
 
 class Response
 {
-    private $body;
-    private $headers;
-    private $statusCode;
+    private $Response;
 
     public function __construct($statusCode, $headers = null, $body = null)
     {
-        $this->body = $body;
-        $this->statusCode = $statusCode;
-        if (is_array($headers)) {
-            $this->headers = $headers;
-        } else {
-            $this->headers = [];
-        }
+        $this->Response = new \ZanPHP\HttpClient\Response($statusCode, $headers, $body);
     }
 
     public function getBody()
     {
-        return $this->body;
+        $this->Response->getBody();
     }
 
     public function getHeaders()
     {
-        return $this->headers;
+        $this->Response->getHeaders();
     }
 
     public function getHeader($header)
     {
-        if (isset($this->headers[$header])) {
-            return $this->headers[$header];
-        } else {
-            return null;
-        }
+        $this->Response->getHeader($header);
     }
 
     public function getStatusCode()
     {
-        return $this->statusCode;
+        $this->Response->getStatusCode();
     }
 }
