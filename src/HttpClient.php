@@ -444,10 +444,14 @@ class HttpClient implements Async
             ]);
             $response = new Response($cli->statusCode, $cli->headers, $cli->body);
             call_user_func($this->callback, $response);
-        } finally {
             $this->callback = null;
             $this->client->close();
+            return;
+        } catch (\Throwable $t) {
+        } catch (\Exception $e) {
         }
+        $this->callback = null;
+        $this->client->close();
     }
 
     public function onClose()
@@ -475,10 +479,14 @@ class HttpClient implements Async
             $exception = new HttpClientTimeoutException($message, 408, null, $metaData);
             $this->commitTrace($exception, "warn", $exception);
             call_user_func($this->callback, null, $exception);
-        } finally {
             $this->callback = null;
             $this->client->close();
+            return;
+        } catch (\Throwable $t) {
+        } catch (\Exception $e) {
         }
+        $this->callback = null;
+        $this->client->close();
     }
 
     public function dnsLookupTimeout()
