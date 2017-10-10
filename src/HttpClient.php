@@ -389,7 +389,7 @@ class HttpClient implements Async
 
     public function whenHostNotFound($host)
     {
-        $ex = new HostNotFoundException("", 408, null, [ "host" => $host ]);
+        $ex = new HostNotFoundException("", 504, null, [ "host" => $host ]);
         call_user_func($this->callback, null, $ex);
     }
 
@@ -447,7 +447,7 @@ class HttpClient implements Async
 
         try {
             list($message, $metaData) = $this->getMetaData("timeout");
-            $exception = new HttpClientTimeoutException($message, 408, null, $metaData);
+            $exception = new HttpClientTimeoutException($message, 504, null, $metaData);
             $this->commitTrace($exception, "warn", $exception);
             call_user_func($this->callback, null, $exception);
             $this->callback = null;
@@ -463,7 +463,7 @@ class HttpClient implements Async
     public function dnsLookupTimeout()
     {
         list($message, $metaData) = $this->getMetaData("dns lookup timeout");
-        $exception = new DnsLookupTimeoutException($message, 408, null, $metaData);
+        $exception = new DnsLookupTimeoutException($message, 504, null, $metaData);
         call_user_func($this->callback, null, $exception);
     }
 
