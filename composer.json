@@ -6,11 +6,17 @@
     "zanphp/exception": "dev-master",
     "zanphp/coroutine": "dev-master",
     "zanphp/timer": "dev-master",
-    "zanphp/rpc-context": "dev-master"
+    "zanphp/rpc-context": "dev-master",
+    "zanphp/testing":"dev-master"
   },
   "autoload": {
     "psr-4": {
-      "ZanPHP\\HttpClient\\": "src/"
+      "ZanPHP\\HttpClient\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ZanPHP\\HttpClient\\Tests\\": "tests"
     }
   },
   "extra": {
