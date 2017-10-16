@@ -18,7 +18,7 @@ use ZanPHP\HttpClient\Exception\HostNotFoundException;
 use ZanPHP\HttpClient\Exception\HttpClientClosedException;
 use ZanPHP\HttpClient\Exception\HttpClientTimeoutException;
 use ZanPHP\RpcContext\RpcContext;
-use ZanPHP\Support\Arr;
+use ZanPHP\Support\Json;
 use ZanPHP\Timer\Timer;
 
 
@@ -113,7 +113,7 @@ class HttpClient implements Async
         $this->setMethod(self::POST);
         $this->setTimeout($timeout);
         $this->setUri($uri);
-        $this->setParams(json_encode($params));
+        $this->setParams(Json::encode($params));
 
         $this->setHeader([
             'Content-Type' => 'application/json'
