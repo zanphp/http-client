@@ -113,7 +113,7 @@ class HttpClient implements Async
         $this->setMethod(self::POST);
         $this->setTimeout($timeout);
         $this->setUri($uri);
-        $this->setParams(Json::encode($params));
+        $this->setParams(json_encode($params));
 
         $this->setHeader([
             'Content-Type' => 'application/json'
