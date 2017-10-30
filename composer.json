@@ -6,7 +6,9 @@
     "zanphp/exception": "dev-master",
     "zanphp/coroutine": "dev-master",
     "zanphp/timer": "dev-master",
-    "zanphp/rpc-context": "dev-master",
+    "zanphp/rpc-context": "dev-master"
+  },
+  "require-dev": {
     "zanphp/testing":"dev-master"
   },
   "autoload": {
