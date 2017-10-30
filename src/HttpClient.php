@@ -127,6 +127,11 @@ class HttpClient implements Async
         yield $this->httpRequest('PUT', $uri, $params, $timeout);
     }
 
+    public function head($uri = '', $params = [], $timeout = 3000)
+    {
+        yield $this->httpRequest('HEAD', $uri, $params, $timeout);
+    }
+    
     public function patch($uri = '', $params = [], $timeout = 3000)
     {
         yield $this->httpRequest('PATCH', $uri, $params, $timeout);
